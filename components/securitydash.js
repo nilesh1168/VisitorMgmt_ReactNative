@@ -1,5 +1,4 @@
 import React,{Component} from 'react';
-import {TextInput, View } from 'react-native';
 import { Container, Header, Left, Right, Body, Title, Icon, Content, Text, Card, Button, CardItem, Tab, Tabs, Item, Input, Label, Picker } from 'native-base';
 import { Formik } from 'formik';
 import * as yup from 'yup'
