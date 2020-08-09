@@ -4,9 +4,9 @@ import { Formik } from 'formik'
 import * as yup from 'yup'
 import * as ImagePicker from 'expo-image-picker';
 import firebase from '../database/firebase'
+import * as Progress from 'react-native-progress';
 
-const storageRef = firebase.storage().ref();
-
+const db = firebase.firestore();
 
 
 
@@ -14,6 +14,8 @@ export default function Add_Guard(props) {
     const [selectedImage, setSelectedImage] = React.useState(null);
     const [progress, setProgess] = React.useState(0);
     const [showprogress, setShowprogress] = React.useState(false);
+    const [dloadURL, setdloadURL] = React.useState('');
+
     let uploadToFirebase = (blob,uri) => {
             var storageRef = firebase.storage().ref();
 
@@ -40,10 +42,11 @@ export default function Add_Guard(props) {
                 }, function() {
                   // Upload completed successfully, now we can get the download URL
                   task.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                    console.log('File available at', downloadURL);
+                    setdloadURL(downloadURL);
                     setProgess(0);
                     setShowprogress(false);
-                    alert("Uploaded")
+                    alert("Added Guard!!")
+                    setSelectedImage(null);
                   });
                 })
 
@@ -95,10 +98,6 @@ export default function Add_Guard(props) {
             setSelectedImage({ localUri: pickerResult.uri, remoteUri: null });
             
         }
-            
-
-        
-
     }
 
     let uploadImage= ()=>{
@@ -109,7 +108,16 @@ export default function Add_Guard(props) {
 
 
     const storeData = (values, actions) => {
+        uploadImage()
+        db.collection("guards").doc(values['aadhaar']).set({
+            name: values['name'],
+            mobile: parseInt(values['mobile']),
+            aadhaar: parseInt(values['aadhaar']),
+            address: values['address'],
+            picURL:dloadURL,
+        })
         console.log(values)
+        console.log(dloadURL);
         actions.resetForm()
     }
 
@@ -125,7 +133,7 @@ export default function Add_Guard(props) {
                 <Right />
             </Header>
             <Content padder>
-                <Card>
+                <Card transparent>
                     {selectedImage && 
                         <CardItem header style={{justifyContent:'center'}}>
                             <Thumbnail square large source={{uri: selectedImage.localUri}} />
@@ -133,10 +141,8 @@ export default function Add_Guard(props) {
                     }
                     <CardItem>
                         <Body >
-                            <Button style={{alignSelf:'center'}} onPress={openImagePickerAsync}><Text>Select Image</Text></Button>
-                            {selectedImage && <Button style={{alignSelf:'center', marginTop:15}} onPress={uploadImage}><Text>Upload</Text></Button>}
-                            {showprogress && <Text>{progress}</Text>} 
-                            
+                            <Button bordered warning rounded style={{alignSelf:'center'}} onPress={openImagePickerAsync}><Icon active type='MaterialCommunityIcons' name='camera-plus'/><Text>Select Profile-Pic</Text></Button>
+                            {showprogress && <Progress.Bar color={'#99e339'} style={{marginTop:20 ,alignSelf:'center'}} animated progress={progress} width={200} />} 
                         </Body>
                     </CardItem>
                 </Card>
@@ -152,7 +158,7 @@ export default function Add_Guard(props) {
                     }>
                     {
                         ({ handleSubmit, handleBlur, handleChange, values, errors, touched }) => (
-                            <Card>
+                            <Card transparent>
                                 <CardItem>
                                     <Body>
                                         <Item floatingLabel style={{ marginTop: 15, marginBottom: 15, }}>
@@ -185,7 +191,7 @@ export default function Add_Guard(props) {
                                     </Body>
                                 </CardItem>
                                 <CardItem footer style={{ justifyContent: 'center' }}>
-                                    <Button onPress={handleSubmit}><Text>Submit</Text></Button>
+                                    <Button onPress={handleSubmit}><Text>Upload & Submit</Text></Button>
                                 </CardItem>
                             </Card>
                         )
