@@ -12,6 +12,7 @@ import Prev_Visits from './components/prev_visits'
 import Sel_Date from './components/dates'
 import Guards from './components/guards';
 import Add_Guard from './components/add_guard';
+import Guard_Profile from './components/guard_profile';
 import firebase from './database/firebase';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -65,6 +66,8 @@ export default function App() {
                                         <Drawer.Screen name="Guards" component={Guards} />
 
                                         <Drawer.Screen name="Add_Guard" component={Add_Guard} />
+
+                                        <Drawer.Screen name="Guard Profile" component={Guard_Profile} />
                                 </Drawer.Navigator>
                         </NavigationContainer>
                 </Root>);
