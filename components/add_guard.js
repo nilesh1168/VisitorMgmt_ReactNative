@@ -1,19 +1,66 @@
-import React from 'react'
-import { Container, Header, Left, Button, Icon, Body, Title, Right, Content, Text, Card, CardItem, Item, Label, Input, Thumbnail } from 'native-base'
+import React, { useEffect } from 'react'
+import { Container, Header, Left, Button, Icon, Body, Title, Right, Content, Text, Card, CardItem, Item, Label, Input, Thumbnail, Spinner, View } from 'native-base'
 import { Formik } from 'formik'
 import * as yup from 'yup'
 import * as ImagePicker from 'expo-image-picker';
 import firebase from '../database/firebase'
 import * as Progress from 'react-native-progress';
+import { useFocusEffect } from '@react-navigation/native';
+import { BackHandler, ActivityIndicator, StyleSheet } from 'react-native';
 
 const db = firebase.firestore();
 
 
-
 export default function Add_Guard(props) {
+    const [ready,setReady] = React.useState(false);
+    const [isguard, setIsguard] = React.useState(props.route.params.isguard)
+    const [guard, setGuard] = React.useState(isguard ? props.route.params.guard : null)
     const [selectedImage, setSelectedImage] = React.useState(null);
     const [progress, setProgess] = React.useState(0);
     const [showprogress, setShowprogress] = React.useState(false);
+
+    useEffect(() => {
+        console.log("inUseEffect")
+        if (props.route.params.isguard) {
+            setIsguard(true)
+            setGuard(props.route.params.guard)
+        }
+        else {
+            setIsguard(false)
+        }
+        setReady(true);
+    })
+
+//     useFocusEffect(
+//         React.useCallback(() => {
+//               const onBackPress = () => {
+//                         setReady(false)
+//                         return false;
+//               };
+
+//               BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+//               return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); }
+//         }, [])
+//   );
+
+    console.log("States");
+    console.log(isguard);
+    console.log(guard);
+    let initialValues = {
+        name: '',
+        mobile: '',
+        aadhaar: '',
+        address: '',
+    }
+    if (isguard) {
+        initialValues = {
+            name: guard.name,
+            mobile: guard.mobile.toString(),
+            aadhaar: guard.aadhaar.toString(),
+            address: guard.address,
+        }
+    }
 
     let uploadToFirebase = (blob, uri) => {
         return new Promise((resolve, reject) => {
@@ -105,9 +152,17 @@ export default function Add_Guard(props) {
                 })
                 console.log(values)
                 actions.resetForm()
+                props.navigation.navigate('Guards')
             })
         })
     }
+
+    if (!ready) {
+        return (
+            <View style={styles.preloader} ><Spinner color="blue" /></View>
+        )
+    }
+
 
 
     return (
@@ -135,7 +190,8 @@ export default function Add_Guard(props) {
                         </Body>
                     </CardItem>
                 </Card>
-                <Formik initialValues={{ name: '', mobile: '', aadhaar: '', address: '' }}
+                <Formik initialValues={initialValues}
+                    enableReinitialize={true}
                     onSubmit={(values, actions) => uploadImage(values, actions)}
                     validationSchema={
                         yup.object().shape({
@@ -190,3 +246,16 @@ export default function Add_Guard(props) {
         </Container>
     );
 }
+
+const styles = StyleSheet.create({
+    preloader: {
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            position: 'absolute',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#fff'
+    },
+});
