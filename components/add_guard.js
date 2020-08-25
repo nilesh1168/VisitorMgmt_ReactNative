@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { Container, Header, Left, Button, Icon, Body, Title, Right, Content, Text, Card, CardItem, Item, Label, Input, Thumbnail, Spinner, View } from 'native-base'
 import { Formik } from 'formik'
 import * as yup from 'yup'
@@ -15,38 +15,36 @@ export default function Add_Guard(props) {
     const [ready,setReady] = React.useState(false);
     const [isguard, setIsguard] = React.useState(props.route.params.isguard)
     const [guard, setGuard] = React.useState(isguard ? props.route.params.guard : null)
-    const [selectedImage, setSelectedImage] = React.useState(null);
+    const [selectedImage, setSelectedImage] = React.useState(props.route.params.isguard ? { localUri: props.route.params.guard.picURL, remoteUri: null } : null);
     const [progress, setProgess] = React.useState(0);
     const [showprogress, setShowprogress] = React.useState(false);
 
     useEffect(() => {
-        console.log("inUseEffect")
         if (props.route.params.isguard) {
             setIsguard(true)
             setGuard(props.route.params.guard)
+            setSelectedImage({ localUri: props.route.params.guard.picURL, remoteUri: null })
         }
         else {
             setIsguard(false)
+            setSelectedImage(null)
         }
-        setReady(true);
-    })
+        setReady(true)
+    }, [props.route.params])
 
-//     useFocusEffect(
-//         React.useCallback(() => {
-//               const onBackPress = () => {
-//                         setReady(false)
-//                         return false;
-//               };
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                setReady(false)
+                return false;
+            };
 
-//               BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-//               return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); }
-//         }, [])
-//   );
+            return () => { BackHandler.removeEventListener('hardwareBackPress', onBackPress); }
+        }, [])
+    );
 
-    console.log("States");
-    console.log(isguard);
-    console.log(guard);
     let initialValues = {
         name: '',
         mobile: '',
@@ -157,13 +155,10 @@ export default function Add_Guard(props) {
         })
     }
 
-    if (!ready) {
-        return (
-            <View style={styles.preloader} ><Spinner color="blue" /></View>
-        )
-    }
-
-
+    if(!ready)
+    return(
+        <View><Spinner></Spinner></View>
+    )
 
     return (
         <Container>
@@ -249,13 +244,13 @@ export default function Add_Guard(props) {
 
 const styles = StyleSheet.create({
     preloader: {
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            position: 'absolute',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#fff'
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        position: 'absolute',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff'
     },
 });
